@@ -16,7 +16,7 @@ on [Debian](https://www.debian.org/)-based Linux distributions.
 ## Usage
 
 ```sh
-    ansible-galaxy collection install soli.copy-fail
+    ansible-galaxy collection install soli.copy_fail
 ```
 
 You can also include it in a `requirements.yml` file and install it via
@@ -24,13 +24,13 @@ You can also include it in a `requirements.yml` file and install it via
 
 ```yaml
 collections:
-  - name: soli.copy-fail
+  - name: soli.copy_fail
 ```
 
 To upgrade the collection to the latest available version, run the following command:
 
 ```sh
-ansible-galaxy collection install soli.copy-fail --upgrade
+ansible-galaxy collection install soli.copy_fail --upgrade
 ```
 
 You can also install a specific version of the collection, for example, if you need to downgrade when something is
@@ -38,7 +38,7 @@ broken in the latest version (please report an issue in this repository).
 Use the following syntax where `X.Y.Z` can be any [available version](https://galaxy.ansible.com/soli/copy-fail):
 
 ```sh
-ansible-galaxy collection install soli.copy-fail:==X.Y.Z
+ansible-galaxy collection install soli.copy_fail:==X.Y.Z
 ```
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more

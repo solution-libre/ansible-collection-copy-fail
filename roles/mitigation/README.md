@@ -35,16 +35,6 @@ None.
     - role: mitigation
 ```
 
-Skip the kernel update if already patched:
-
-```yaml
-- hosts: all
-  roles:
-    - role: mitigation
-      vars:
-        mitigation_update_kernel: false
-```
-
 ## License
 
 [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html)

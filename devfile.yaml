@@ -1,6 +1,6 @@
 schemaVersion: 2.2.2
 metadata:
-  name: soli.copy-fail-1c3bc549
+  name: soli.copy_fail-1c3bc549
 components:
   - name: tooling-container
     container:
