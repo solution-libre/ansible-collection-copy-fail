@@ -21,10 +21,10 @@
   community.general.modprobe:
     name: algif_aead
     state: absent
-  register: modprobe_result
+  register: mitigation_modprobe_result
   failed_when:
-    - modprobe_result is failed
-    - '"not currently loaded" not in (modprobe_result.stderr | default("") | lower)'
+    - mitigation_modprobe_result is failed
+    - '"not currently loaded" not in (mitigation_modprobe_result.stderr | default("") | lower)'
 
 # ── Step 3: Drop the page cache ──────────────────────────────────────────────
 # The exploit only modifies the page cache (not the file on disk).
