@@ -1,0 +1,5 @@
+{
+	"ansible.python.interpreterPath": "/bin/python3",
+	"licenser.projectName": "Copy Fail Ansible collection",
+	"licenser.license": "GPLv3"
+}

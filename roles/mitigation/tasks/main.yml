@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# tasks file for copy-fail
+
+# ── Step 1: Disable the algif_aead module via modprobe ──────────────────────
+# CVE-2026-31431 exploits AF_ALG (algif_aead) to write into the page cache
+# of a setuid binary. Disabling the module cuts the attack vector before
+# a patched kernel can be installed.
+
+- name: Deploy modprobe configuration to disable algif_aead
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/disable-algif.conf
+    content: "install algif_aead /bin/false\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+# ── Step 2: Unload the module if currently loaded ────────────────────────────
+
+- name: Unload algif_aead module if present in memory
+  community.general.modprobe:
+    name: algif_aead
+    state: absent
+  ignore_errors: true  # The module may already be absent
+
+# ── Step 3: Drop the page cache ──────────────────────────────────────────────
+# The exploit only modifies the page cache (not the file on disk).
+# sync + drop_caches=3 invalidates tainted entries without a reboot.
+# Source: hatclub comment — issue #7, theori-io/copy-fail repository.
+
+- name: Sync disk buffers before dropping the cache
+  ansible.builtin.command: sync
+  changed_when: false
+  when: mitigation_drop_page_cache | bool
+
+- name: Drop the page cache (drop_caches=3)
+  ansible.builtin.shell:
+    cmd: echo 3 > /proc/sys/vm/drop_caches
+  changed_when: true
+  when: mitigation_drop_page_cache | bool

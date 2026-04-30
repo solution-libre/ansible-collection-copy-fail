@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# handlers file for copy-fail
+
+- name: Reboot required
+  ansible.builtin.reboot:
+    msg: "Reboot required after kernel update (CVE-2026-31431)"
+    reboot_timeout: 300
