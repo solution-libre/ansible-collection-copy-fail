@@ -3,8 +3,8 @@
 
 # See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html
 
-namespace: "soli"
-name: "copy-fail"
+namespace: soli
+name: copy_fail
 version: 1.0.0
 readme: README.md
 authors:
@@ -12,7 +12,7 @@ authors:
 
 description: Copy Fail collection
 license_file: LICENSE
-tags: ['linux', 'debian', 'copy-fail']
+tags: ['linux', 'debian', 'security', 'copy_fail']
 dependencies: {}
 
 repository: https://usine.solution-libre.fr/ansible/copy-fail
