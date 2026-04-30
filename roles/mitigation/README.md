@@ -1,4 +1,4 @@
-# Copy Fail
+# Copy Fail mitigation Ansible role
 
 An Ansible role to mitigate [CVE-2026-31431 (Copy Fail)](https://copy.fail)
 — a Linux local privilege escalation exploiting `AF_ALG` (`algif_aead`) to write into the page cache of a setuid binary.

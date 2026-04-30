@@ -5,7 +5,7 @@
 
 namespace: soli
 name: copy_fail
-version: 1.0.1
+version: 1.1.0
 readme: README.md
 authors:
   - Solution Libre <contact@solution-libre.fr>

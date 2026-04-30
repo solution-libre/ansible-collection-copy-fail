@@ -1,0 +1,16 @@
+galaxy_info:
+  author: Florent Poinsaut
+  description: Copy Fail reactivation
+  company: Solution Libre
+  issue_tracker_url: https://usine.solution-libre.fr/ansible/copy-fail/-/work_items
+  license: GPL-3.0-or-later
+  min_ansible_version: '2.10'
+  galaxy_tags:
+    - security
+    - cve
+    - linux
+    - kernel
+collections:
+  - community.general
+
+dependencies: []

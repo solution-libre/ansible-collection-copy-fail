@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# tasks file for reactivation
+
+# ── Step 1: Remove the modprobe configuration that disables algif_aead ───────
+# Deleting the drop-in restores normal module loading behaviour so that
+# algif_aead can be loaded again by the kernel on demand.
+
+- name: Remove modprobe configuration that disables algif_aead
+  ansible.builtin.file:
+    path: /etc/modprobe.d/disable-algif.conf
+    state: absent
+
+# ── Step 2: Reload the algif_aead module ─────────────────────────────────────
+# The module is pulled back into the running kernel so that AF_ALG sockets
+# become available again without requiring a reboot.
+
+- name: Load algif_aead module
+  community.general.modprobe:
+    name: algif_aead
+    state: present
