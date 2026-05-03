@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+- name: Tests Copy Fail detection tasks
+  hosts: localhost
+  remote_user: root
+  roles:
+    - detection

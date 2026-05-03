@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# defaults file for detection
+
+detection_fail_if_unprotected: false

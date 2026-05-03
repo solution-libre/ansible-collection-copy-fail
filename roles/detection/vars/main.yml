@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# vars file for detection
+
+# First kernel version that includes the fix for CVE-2026-31431 per Debian release.
+# Source: https://security-tracker.debian.org/tracker/CVE-2026-31431
+_detection_fixed_versions:
+  bullseye: "5.10.251-3"
+  bookworm: "6.1.170-1"
+  trixie: "6.12.85-1"
+  forky: "6.19.14-1"
+  sid: "7.0.3-1"

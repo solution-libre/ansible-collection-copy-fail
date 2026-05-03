@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+---
+# tasks file for detection
+
+# ── Step 1: Verify the OS is Debian ──────────────────────────────────────────
+
+- name: Assert that the target distribution is Debian
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Debian"
+    fail_msg: >-
+      This role only supports Debian. Detected distribution:
+      {{ ansible_distribution }} {{ ansible_distribution_version }}.
+    success_msg: "Debian distribution detected ({{ ansible_lsb.codename }})."
+
+# ── Step 2: Verify the Debian release is known ───────────────────────────────
+
+- name: Assert that the Debian release has a known fixed version
+  ansible.builtin.assert:
+    that:
+      - ansible_lsb.codename in _detection_fixed_versions
+    fail_msg: >-
+      Unknown Debian release '{{ ansible_lsb.codename }}'.
+      Supported releases: {{ _detection_fixed_versions.keys() | list | join(', ') }}.
+    success_msg: >-
+      Debian {{ ansible_lsb.codename }} detected.
+      Fixed version: {{ _detection_fixed_versions[ansible_lsb.codename] }}.
+
+# ── Step 3: Retrieve the installed kernel package version ────────────────────
+# dpkg-query is used to obtain the exact Debian package version (e.g.
+# 6.1.169-1) from the running kernel, which is the canonical source for
+# package comparison and more reliable than parsing uname output directly.
+
+- name: Get installed linux-image package version for the running kernel
+  ansible.builtin.command:
+    cmd: >-
+      dpkg-query --showformat='${Version}' --show
+      linux-image-{{ ansible_kernel }}
+  register: _detection_kernel_pkg
+  changed_when: false
+  failed_when:
+    - _detection_kernel_pkg.rc != 0
+    - '"no packages found" not in (_detection_kernel_pkg.stderr | default("") | lower)'
+
+# ── Step 4: Check whether the modprobe mitigation is active ──────────────────
+
+- name: Check presence of modprobe drop-in that disables algif_aead
+  ansible.builtin.stat:
+    path: /etc/modprobe.d/disable-algif.conf
+  register: _detection_modprobe_stat
+
+# ── Step 5: Derive protection facts ──────────────────────────────────────────
+
+- name: Set Copy Fail detection facts
+  ansible.builtin.set_fact:
+    copy_fail_patched: >-
+      {{
+        _detection_kernel_pkg.rc == 0 and
+        _detection_kernel_pkg.stdout | default('') != '' and
+        _detection_kernel_pkg.stdout is version(
+          _detection_fixed_versions[ansible_lsb.codename], '>=', version_type='loose'
+        )
+      }}
+    copy_fail_mitigated: "{{ _detection_modprobe_stat.stat.exists }}"
+
+- name: Derive copy_fail_vulnerable and copy_fail_protected facts
+  ansible.builtin.set_fact:
+    copy_fail_vulnerable: "{{ not copy_fail_patched and not copy_fail_mitigated }}"
+    copy_fail_protected: "{{ copy_fail_patched or copy_fail_mitigated }}"
+
+# ── Step 6: Report status ─────────────────────────────────────────────────────
+
+- name: Report CVE-2026-31431 protection status
+  ansible.builtin.debug:
+    msg: >-
+      CVE-2026-31431 (Copy Fail) status on {{ inventory_hostname }}:
+      kernel={{ _detection_kernel_pkg.stdout | default('unknown') }}
+      fixed_version={{ _detection_fixed_versions[ansible_lsb.codename] }}
+      patched={{ copy_fail_patched }}
+      mitigated={{ copy_fail_mitigated }}
+      vulnerable={{ copy_fail_vulnerable }}
+
+- name: Warn if the system is vulnerable and detection_fail_if_unprotected is false
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: {{ inventory_hostname }} is vulnerable to CVE-2026-31431 (Copy Fail).
+      Apply the 'mitigation' role or install a patched kernel to protect this host.
+  when:
+    - copy_fail_vulnerable
+    - not detection_fail_if_unprotected
+
+# ── Step 7: Fail if requested and system is unprotected ──────────────────────
+
+- name: Fail if the system is unprotected and detection_fail_if_unprotected is true
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }} is vulnerable to CVE-2026-31431 (Copy Fail).
+      Apply the 'mitigation' role or install a patched kernel, then re-run.
+  when:
+    - copy_fail_vulnerable
+    - detection_fail_if_unprotected
