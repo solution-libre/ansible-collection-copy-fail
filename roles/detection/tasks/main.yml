@@ -26,21 +26,24 @@
       Debian {{ ansible_lsb.codename }} detected.
       Fixed version: {{ _detection_fixed_versions[ansible_lsb.codename] }}.
 
-# ── Step 3: Retrieve the installed kernel package version ────────────────────
-# dpkg-query is used to obtain the exact Debian package version (e.g.
-# 6.1.169-1) from the running kernel, which is the canonical source for
-# package comparison and more reliable than parsing uname output directly.
+# ── Step 3: Compare kernel version against the known fixed version ────────────
+# ansible_kernel contains the uname -r value (e.g. 6.12.85+deb13-cloud-amd64).
+# The architecture suffix is stripped before handing the value to
+# dpkg --compare-versions, which is the authoritative Debian version comparator.
+# rc=0 means the installed version is >= fixed version (patched).
+# rc=1 means the installed version is < fixed version (vulnerable).
 
-- name: Get installed linux-image package version for the running kernel
+- name: Compare kernel version against the fixed version for CVE-2026-31431
   ansible.builtin.command:
-    cmd: >-
-      dpkg-query --showformat='${Version}' --show
-      linux-image-{{ ansible_kernel }}
-  register: _detection_kernel_pkg
+    argv:
+      - dpkg
+      - --compare-versions
+      - "{{ ansible_kernel }}"
+      - ge
+      - "{{ _detection_fixed_versions[ansible_lsb.codename] }}"
+  register: _detection_version_cmp
   changed_when: false
-  failed_when:
-    - _detection_kernel_pkg.rc != 0
-    - '"no packages found" not in (_detection_kernel_pkg.stderr | default("") | lower)'
+  failed_when: _detection_version_cmp.rc > 1
 
 # ── Step 4: Check whether the modprobe mitigation is active ──────────────────
 
@@ -53,14 +56,7 @@
 
 - name: Set Copy Fail detection facts
   ansible.builtin.set_fact:
-    copy_fail_patched: >-
-      {{
-        _detection_kernel_pkg.rc == 0 and
-        _detection_kernel_pkg.stdout | default('') != '' and
-        _detection_kernel_pkg.stdout is version(
-          _detection_fixed_versions[ansible_lsb.codename], '>=', version_type='loose'
-        )
-      }}
+    copy_fail_patched: "{{ _detection_version_cmp.rc == 0 }}"
     copy_fail_mitigated: "{{ _detection_modprobe_stat.stat.exists }}"
 
 - name: Derive copy_fail_vulnerable and copy_fail_protected facts
@@ -74,7 +70,7 @@
   ansible.builtin.debug:
     msg: >-
       CVE-2026-31431 (Copy Fail) status on {{ inventory_hostname }}:
-      kernel={{ _detection_kernel_pkg.stdout | default('unknown') }}
+      kernel={{ ansible_kernel }}
       fixed_version={{ _detection_fixed_versions[ansible_lsb.codename] }}
       patched={{ copy_fail_patched }}
       mitigated={{ copy_fail_mitigated }}
