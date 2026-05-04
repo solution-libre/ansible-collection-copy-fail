@@ -17,7 +17,7 @@ The collection provides three roles:
 
 | Role | Purpose |
 | --- | --- |
-| `detection` | Detects whether the system is vulnerable to CVE-2026-31431 and exposes Ansible facts (`copy_fail_vulnerable`, `copy_fail_patched`, `copy_fail_mitigated`, `copy_fail_protected`) |
+| `detection` | Detects whether the system is vulnerable to CVE-2026-31431 and exposes Ansible facts (`detection_copy_fail_vulnerable`, `detection_copy_fail_patched`, `detection_copy_fail_mitigated`, `detection_copy_fail_protected`) |
 | `mitigation` | Disables the `algif_aead` kernel module and drops the page cache to block the attack vector without a reboot |
 | `reactivation` | Restores `algif_aead` after a patched kernel has been installed and the system rebooted |
 

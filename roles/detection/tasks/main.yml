@@ -43,6 +43,7 @@
       - "{{ _detection_fixed_versions[ansible_lsb.codename] }}"
   register: _detection_version_cmp
   changed_when: false
+  check_mode: false
   failed_when: _detection_version_cmp.rc > 1
 
 # ── Step 4: Check whether the modprobe mitigation is active ──────────────────
@@ -56,13 +57,13 @@
 
 - name: Set Copy Fail detection facts
   ansible.builtin.set_fact:
-    copy_fail_patched: "{{ _detection_version_cmp.rc == 0 }}"
-    copy_fail_mitigated: "{{ _detection_modprobe_stat.stat.exists }}"
+    detection_copy_fail_patched: "{{ _detection_version_cmp.rc == 0 }}"
+    detection_copy_fail_mitigated: "{{ _detection_modprobe_stat.stat.exists }}"
 
-- name: Derive copy_fail_vulnerable and copy_fail_protected facts
+- name: Derive detection_copy_fail_vulnerable and detection_copy_fail_protected facts
   ansible.builtin.set_fact:
-    copy_fail_vulnerable: "{{ not copy_fail_patched and not copy_fail_mitigated }}"
-    copy_fail_protected: "{{ copy_fail_patched or copy_fail_mitigated }}"
+    detection_copy_fail_vulnerable: "{{ not detection_copy_fail_patched and not detection_copy_fail_mitigated }}"
+    detection_copy_fail_protected: "{{ detection_copy_fail_patched or detection_copy_fail_mitigated }}"
 
 # ── Step 6: Report status ─────────────────────────────────────────────────────
 
@@ -72,9 +73,9 @@
       CVE-2026-31431 (Copy Fail) status on {{ inventory_hostname }}:
       kernel={{ ansible_kernel }}
       fixed_version={{ _detection_fixed_versions[ansible_lsb.codename] }}
-      patched={{ copy_fail_patched }}
-      mitigated={{ copy_fail_mitigated }}
-      vulnerable={{ copy_fail_vulnerable }}
+      patched={{ detection_copy_fail_patched }}
+      mitigated={{ detection_copy_fail_mitigated }}
+      vulnerable={{ detection_copy_fail_vulnerable }}
 
 - name: Warn if the system is vulnerable and detection_fail_if_unprotected is false
   ansible.builtin.debug:
@@ -82,7 +83,7 @@
       WARNING: {{ inventory_hostname }} is vulnerable to CVE-2026-31431 (Copy Fail).
       Apply the 'mitigation' role or install a patched kernel to protect this host.
   when:
-    - copy_fail_vulnerable
+    - detection_copy_fail_vulnerable
     - not detection_fail_if_unprotected
 
 # ── Step 7: Fail if requested and system is unprotected ──────────────────────
@@ -93,5 +94,5 @@
       {{ inventory_hostname }} is vulnerable to CVE-2026-31431 (Copy Fail).
       Apply the 'mitigation' role or install a patched kernel, then re-run.
   when:
-    - copy_fail_vulnerable
+    - detection_copy_fail_vulnerable
     - detection_fail_if_unprotected

@@ -27,10 +27,10 @@ None.
 
 | Fact | Description |
 | --- | --- |
-| `copy_fail_patched` | `true` if the running kernel package version is ≥ the fixed version for the detected Debian release. |
-| `copy_fail_mitigated` | `true` if `/etc/modprobe.d/disable-algif.conf` is present (mitigation role applied). |
-| `copy_fail_vulnerable` | `true` if neither `copy_fail_patched` nor `copy_fail_mitigated` is `true`. |
-| `copy_fail_protected` | `true` if `copy_fail_patched` or `copy_fail_mitigated` is `true`. |
+| `detection_copy_fail_patched` | `true` if the running kernel package version is ≥ the fixed version for the detected Debian release. |
+| `detection_copy_fail_mitigated` | `true` if `/etc/modprobe.d/disable-algif.conf` is present (mitigation role applied). |
+| `detection_copy_fail_vulnerable` | `true` if neither `detection_copy_fail_patched` nor `detection_copy_fail_mitigated` is `true`. |
+| `detection_copy_fail_protected` | `true` if `detection_copy_fail_patched` or `detection_copy_fail_mitigated` is `true`. |
 
 ## Dependencies
 
