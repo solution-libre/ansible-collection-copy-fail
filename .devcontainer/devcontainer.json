@@ -3,7 +3,7 @@
 {
 	"name": "Copy Fail Ansible collection",
 	// Or use a Copy Failfile or Copy Fail Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "registry.solution-libre.fr/docker/ansible-for-vscode:0.1.1",
+	"image": "registry.solution-libre.fr/docker/ansible-for-vscode:0.2.0",
 
 	"runArgs": [
 		"--security-opt",
