@@ -13,6 +13,14 @@
 [Ansible](https://www.ansible.com/) collection that mitigate [Copy Fail](https://copy.fail/)
 on [Debian](https://www.debian.org/)-based Linux distributions.
 
+The collection provides three roles:
+
+| Role | Purpose |
+| --- | --- |
+| `detection` | Detects whether the system is vulnerable to CVE-2026-31431 and exposes Ansible facts (`detection_copy_fail_vulnerable`, `detection_copy_fail_patched`, `detection_copy_fail_mitigated`, `detection_copy_fail_protected`) |
+| `mitigation` | Disables the `algif_aead` kernel module and drops the page cache to block the attack vector without a reboot |
+| `reactivation` | Restores `algif_aead` after a patched kernel has been installed and the system rebooted |
+
 ## Usage
 
 ```sh
